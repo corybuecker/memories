@@ -45,20 +45,22 @@ defmodule Memories.AlbumWorker do
     |> List.first()
   end
 
-  defp upsert_image(%{album_id: album_id, name: name} = changes) do
+  defp upsert_image(%{album_id: album_id, name: name, album_order: album_order} = changes) do
+    Logger.info(changes)
+
     case Memories.Repo.get_by(Memories.Image, name: name, album_id: album_id) do
       nil ->
-        %Memories.Image{}
+        %Memories.Image{album_id: album_id, album_order: album_order}
 
       image ->
         image
     end
-    |> sign_url()
     |> Memories.Image.changeset(changes)
+    |> sign_url()
     |> Memories.Repo.insert_or_update!()
   end
 
-  defp sign_url(%Memories.Image{} = image) do
+  defp sign_url(%Ecto.Changeset{} = image) do
     current_time = DateTime.utc_now() |> DateTime.truncate(:second)
     signed_url_expiration = current_time |> DateTime.add(86400, :second)
     current_timestamp = current_time |> DateTime.to_iso8601(:basic)
@@ -66,7 +68,7 @@ defmodule Memories.AlbumWorker do
     Logger.debug(current_time)
 
     hostname = "storage.googleapis.com"
-    path_to_resource = "/bueckered-memories/#{image.name}"
+    path_to_resource = "/bueckered-memories/#{image.data.name}"
 
     query_strings =
       [
@@ -76,7 +78,7 @@ defmodule Memories.AlbumWorker do
           "texas-dev@bueckered-272522.iam.gserviceaccount.com/20220704/auto/storage/goog4_request",
         "x-goog-date": current_timestamp,
         "x-goog-expires": 86400,
-        "content-type": image.content_type
+        "content-type": image.data.content_type
       ]
       |> Enum.sort()
 
@@ -141,7 +143,7 @@ defmodule Memories.AlbumWorker do
     }
 
     image
-    |> Memories.Image.changeset(%{
+    |> Ecto.Changeset.change(%{
       signed_url: URI.to_string(signed_uri),
       signed_url_expiration: signed_url_expiration
     })
