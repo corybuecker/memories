@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -ex
+
+docker compose up -d
+
+mix phx.server
