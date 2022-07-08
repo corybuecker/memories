@@ -17,7 +17,8 @@ defmodule MemoriesWeb.Router do
   scope "/", MemoriesWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live("/:album_name", AlbumLive)
+    live("/:album_name/:album_order", AlbumLive)
   end
 
   # Other scopes may use custom stacks.

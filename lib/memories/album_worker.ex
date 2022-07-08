@@ -64,6 +64,7 @@ defmodule Memories.AlbumWorker do
     current_time = DateTime.utc_now() |> DateTime.truncate(:second)
     signed_url_expiration = current_time |> DateTime.add(86400, :second)
     current_timestamp = current_time |> DateTime.to_iso8601(:basic)
+    current_date = current_time |> DateTime.to_date() |> Date.to_iso8601(:basic)
 
     Logger.debug(current_time)
 
@@ -75,7 +76,7 @@ defmodule Memories.AlbumWorker do
         "x-goog-signedheaders": "host",
         "x-goog-algorithm": "GOOG4-RSA-SHA256",
         "x-goog-credential":
-          "texas-dev@bueckered-272522.iam.gserviceaccount.com/20220704/auto/storage/goog4_request",
+          "texas-dev@bueckered-272522.iam.gserviceaccount.com/#{current_date}/auto/storage/goog4_request",
         "x-goog-date": current_timestamp,
         "x-goog-expires": 86400,
         "content-type": image.data.content_type
@@ -111,7 +112,7 @@ defmodule Memories.AlbumWorker do
       [
         "GOOG4-RSA-SHA256",
         current_timestamp,
-        "20220704/auto/storage/goog4_request",
+        "#{current_date}/auto/storage/goog4_request",
         hashed_canonical_request
       ]
       |> Enum.join("\n")
