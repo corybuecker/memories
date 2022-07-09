@@ -1,1 +1,18 @@
-<img src={@album.images |> List.first() |> then(fn(image) -> image.signed_url end)} />
+<div class="w-screen h-screen">
+  <div class="flex flex-row">
+    <div class="flex flex-col items-center w-full h-full">
+      <div class="grow h-[calc(100vh-4rem)]">
+        <img class="object-contain h-full" src={@image.signed_url} />
+      </div>
+      <div class="flex-none h-[4rem] pt-2">
+        <%= live_patch "first", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, 1) %>
+        <%= live_patch "previous", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, @image.album_order - 1) %>
+        <%= live_patch "next", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, @image.album_order + 1) %>
+        Last
+      </div>
+    </div>
+    <div class="w-1/4 pt-5">
+      comments!
+    </div>
+  </div>
+</div>

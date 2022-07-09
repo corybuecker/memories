@@ -10,12 +10,11 @@ defmodule MemoriesWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
-
   scope "/", MemoriesWeb do
     pipe_through :browser
+
+    get("/login", AlbumAuthenticationController, :index)
+    post("/login", AlbumAuthenticationController, :create)
 
     live("/:album_name", AlbumLive)
     live("/:album_name/:album_order", AlbumLive)

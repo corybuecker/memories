@@ -71,6 +71,8 @@ defmodule Memories.AlbumWorker do
     hostname = "storage.googleapis.com"
     path_to_resource = "/bueckered-memories/#{image.data.name}"
 
+    Logger.debug(image.data.content_type)
+
     query_strings =
       [
         "x-goog-signedheaders": "host",

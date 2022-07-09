@@ -9,5 +9,8 @@ defmodule Memories.Repo.Migrations.CreateAlbums do
 
       timestamps()
     end
+
+    create unique_index(:albums, [:prefix])
+    create unique_index(:albums, [:key])
   end
 end
