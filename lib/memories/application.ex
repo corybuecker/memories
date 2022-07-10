@@ -18,7 +18,8 @@ defmodule Memories.Application do
       MemoriesWeb.Endpoint,
       # Start a worker by calling: Memories.Worker.start_link(arg)
       # {Memories.Worker, arg}
-      {Goth, name: Memories.Goth}
+      {Goth, name: Memories.Goth},
+      {Redix, name: Memories.Redis}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

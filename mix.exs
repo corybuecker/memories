@@ -33,13 +33,14 @@ defmodule Memories.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:castore, ">= 0.0.0"},
       {:dialyxir, "~> 1.0", only: [:dev], runtime: false},
       {:ecto_sql, "~> 3.6"},
       {:esbuild, "~> 0.4", runtime: Mix.env() == :dev},
       {:floki, ">= 0.30.0", only: :test},
       {:gettext, "~> 0.18"},
-      {:google_api_storage, "~> 0.34"},
       {:google_api_iam_credentials, "~> 0.12"},
+      {:google_api_storage, "~> 0.34"},
       {:goth, "~> 1.3"},
       {:jason, "~> 1.2"},
       {:phoenix_ecto, "~> 4.4"},
@@ -50,6 +51,7 @@ defmodule Memories.MixProject do
       {:phoenix, "~> 1.6.10"},
       {:plug_cowboy, "~> 2.5"},
       {:postgrex, ">= 0.0.0"},
+      {:redix, "~> 1.1"},
       {:swoosh, "~> 1.3"},
       {:tailwind, "~> 0.1.6", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 0.6"},

@@ -10,14 +10,13 @@ defmodule Memories.Image do
     field :signed_url_expiration, :utc_datetime
 
     belongs_to :album, Memories.Album
-    field :album_order, :integer
 
     timestamps()
   end
 
   def changeset(account, params \\ %{}) do
     account
-    |> cast(params, [:name, :content_type, :signed_url, :signed_url_expiration, :album_order])
-    |> validate_required([:name, :content_type, :album_order])
+    |> cast(params, [:name, :content_type, :signed_url, :signed_url_expiration])
+    |> validate_required([:name, :content_type])
   end
 end

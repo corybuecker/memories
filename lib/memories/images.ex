@@ -1,22 +1,25 @@
 defmodule Memories.Images do
   require Logger
-  alias Memories.{Repo, Album, Image}
+  alias Memories.{Repo, Album, Image, Redis}
   import Ecto.Query, only: [from: 2]
 
-  def get_image_from_album(prefix, key, album_order) do
+  def get_images_from_album(album_name, album_order) do
+    {order, ""} = album_order |> Integer.parse()
+    min = Kernel.max(0, order - 1)
+    max = order + 1
+
+    album = from(a in Album, where: a.prefix == ^album_name, limit: 1) |> Repo.one()
+
+    {:ok, images} = Redix.command(Redis, ["ZRANGE", "albums-#{album.id}", min, max])
+
     image_query =
       from i in Image,
         join: a in Album,
         on: a.id == i.album_id,
-        where: i.album_order == ^album_order and a.prefix == ^prefix and a.key == ^key,
-        preload: [:album]
+        where: a.id == ^album.id and i.name in ^images,
+        preload: [:album],
+        limit: 3
 
-    case image_query |> Repo.one() do
-      nil ->
-        {:error, "No album found"}
-
-      album ->
-        {:ok, album}
-    end
+    image_query |> Repo.all()
   end
 end

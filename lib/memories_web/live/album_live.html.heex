@@ -6,8 +6,8 @@
       </div>
       <div class="flex-none h-[4rem] pt-2">
         <%= live_patch "first", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, 1) %>
-        <%= live_patch "previous", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, @image.album_order - 1) %>
-        <%= live_patch "next", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, @image.album_order + 1) %>
+        <%= live_patch "previous", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, 1) %>
+        <%= live_patch "next", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, 1) %>
         Last
       </div>
     </div>

@@ -39,25 +39,30 @@ defmodule Memories.AlbumWorker do
                                name: name
                              },
                              acc ->
-      {%{album_id: id, name: name, content_type: content_type, album_order: acc}, acc + 1}
+      {%{album_id: id, name: name, content_type: content_type}, acc + 1}
     end)
     |> Tuple.to_list()
     |> List.first()
   end
 
-  defp upsert_image(%{album_id: album_id, name: name, album_order: album_order} = changes) do
-    Logger.info(changes)
-
+  defp upsert_image(%{album_id: album_id, name: name} = changes) do
     case Memories.Repo.get_by(Memories.Image, name: name, album_id: album_id) do
       nil ->
-        %Memories.Image{album_id: album_id, album_order: album_order}
+        %Memories.Image{album_id: album_id}
 
       image ->
         image
     end
     |> Memories.Image.changeset(changes)
     |> sign_url()
-    |> Memories.Repo.insert_or_update!()
+    |> Memories.Repo.insert_or_update()
+    |> hold_image_order()
+  end
+
+  defp hold_image_order({:ok, %Memories.Image{name: name, album_id: album_id}}) do
+    {:ok, number} = Redix.command(Memories.Redis, ["ZCARD", "albums-#{album_id}"])
+    Redix.command(Memories.Redis, ["ZADD", "NX", "albums-#{album_id}", number, name])
+    Redix.command(Memories.Redis, ["EXPIRE", "albums-#{album_id}", 60 * 60 * 36])
   end
 
   defp sign_url(%Ecto.Changeset{} = image) do
@@ -66,12 +71,8 @@ defmodule Memories.AlbumWorker do
     current_timestamp = current_time |> DateTime.to_iso8601(:basic)
     current_date = current_time |> DateTime.to_date() |> Date.to_iso8601(:basic)
 
-    Logger.debug(current_time)
-
     hostname = "storage.googleapis.com"
     path_to_resource = "/bueckered-memories/#{image.data.name}"
-
-    Logger.debug(image.data.content_type)
 
     query_strings =
       [
@@ -107,9 +108,6 @@ defmodule Memories.AlbumWorker do
     hashed_canonical_request =
       :crypto.hash(:sha256, canonical_request) |> Base.encode16() |> String.downcase()
 
-    Logger.debug(canonical_request)
-    Logger.debug(hashed_canonical_request)
-
     string_to_sign =
       [
         "GOOG4-RSA-SHA256",
@@ -118,8 +116,6 @@ defmodule Memories.AlbumWorker do
         hashed_canonical_request
       ]
       |> Enum.join("\n")
-
-    Logger.debug(string_to_sign)
 
     string_to_sign = string_to_sign |> Base.encode64()
 
