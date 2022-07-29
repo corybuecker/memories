@@ -2,13 +2,13 @@
   <div class="flex flex-row">
     <div class="flex flex-col items-center w-full h-full">
       <div class="grow h-[calc(100vh-4rem)]">
-        <img class="object-contain h-full" src={@image.signed_url} />
+        <img class="object-contain h-full" src={@image.public_url} />
       </div>
       <div class="flex-none h-[4rem] pt-2">
-        <%= live_patch "first", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, 1) %>
-        <%= live_patch "previous", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, 1) %>
-        <%= live_patch "next", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, 1) %>
-        Last
+        <%= live_patch "first", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, 0) %>
+        <%= live_patch "previous", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, @album_order - 1) %>
+        <%= live_patch "next", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, @album_order + 1) %>
+        <%= live_patch "last", to: Routes.live_path(@socket, MemoriesWeb.AlbumLive, @image.album.prefix, -1) %>
       </div>
     </div>
     <div class="w-1/4 pt-5">

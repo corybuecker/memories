@@ -4,23 +4,25 @@ defmodule MemoriesWeb.AlbumLive do
 
   on_mount MemoriesWeb.AlbumAuthorization
 
-  alias Memories.{Images}
+  alias Memories.{Images, Image}
 
   def mount(
         %{"album_name" => album_name, "album_order" => album_order},
         _session,
         socket
       ) do
-    case Images.get_images_from_album(
+    case Images.get_image_from_album(
            album_name,
            album_order
          ) do
       nil ->
         {:ok, assign(socket, :error, "could not find images")}
 
-      [_previous, image, _next] ->
-        Logger.debug(image)
-        {:ok, socket |> assign(:image, image)}
+      image = %Image{} ->
+        {:ok,
+         socket
+         |> assign(:image, image)
+         |> assign(:album_order, album_order |> String.to_integer())}
     end
   end
 
@@ -32,22 +34,25 @@ defmodule MemoriesWeb.AlbumLive do
            socket,
            MemoriesWeb.AlbumLive,
            album_name,
-           1,
+           0,
            []
          )
      )}
   end
 
   def handle_params(%{"album_name" => album_name, "album_order" => album_order}, _link, socket) do
-    case Images.get_images_from_album(
+    case Images.get_image_from_album(
            album_name,
            album_order
          ) do
       nil ->
         {:noreply, assign(socket, :error, "could not find images")}
 
-      [_previous, image, _next] ->
-        {:noreply, socket |> assign(:image, image)}
+      image = %Image{} ->
+        {:noreply,
+         socket
+         |> assign(:image, image)
+         |> assign(:album_order, album_order |> String.to_integer())}
     end
   end
 end
